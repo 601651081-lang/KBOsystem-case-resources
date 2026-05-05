@@ -1,0 +1,18 @@
+{
+  "students": [
+    {
+      "id": 1,
+      "name": "示例学员",
+      "school": "香港大学",
+      "major": "计算机科学",
+      "degree": "本科",
+      "year": "2024",
+      "photo": "",
+      "offerImage": "",
+      "status": "已录取",
+      "country": "中国香港",
+      "intake": "秋季"
+    }
+  ],
+  "cases": []
+}

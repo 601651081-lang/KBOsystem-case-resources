@@ -1,0 +1,6 @@
+{
+  "id": 1,
+  "username": "admin",
+  "password": "$2b$12$examplehash",
+  "createdAt": "2024-01-01T00:00:00.000Z"
+}

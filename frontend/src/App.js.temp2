@@ -1,0 +1,364 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import StudentCard from './components/StudentCard';
+import StudentModal from './components/StudentModal';
+import DeleteConfirmModal from './components/DeleteConfirmModal';
+
+// API基础URL
+const API_BASE_URL = 'http://localhost:3001/api';
+
+/**
+ * 主应用组�? * 包含学员列表展示、搜索筛选、添�?编辑/删除功能
+ */
+function App() {
+  // ==================== 状态管�?====================
+  
+  // 学员列表数据
+  const [students, setStudents] = useState([]);
+  // 加载状�?  const [loading, setLoading] = useState(true);
+  // 错误信息
+  const [error, setError] = useState(null);
+  
+  // 搜索和筛选条�?  const [searchKeyword, setSearchKeyword] = useState('');
+  const [undergradSchoolSearch, setUndergradSchoolSearch] = useState('');
+  const [admittedSchoolSearch, setAdmittedSchoolSearch] = useState('');
+  const [majorSearch, setMajorSearch] = useState('');
+  
+  // 筛选选项列表（保留以备后用）
+  // eslint-disable-next-line no-unused-vars
+  const [undergradSchools, setUndergradSchools] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [admittedSchools, setAdmittedSchools] = useState([]);
+  
+  // 弹窗控制
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingStudent, setDeletingStudent] = useState(null);
+
+  // ==================== 数据获取 ====================
+  
+  /**
+   * 获取学员列表
+   */
+  const fetchStudents = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params = {};
+      if (searchKeyword) params.search = searchKeyword;
+      if (undergradSchoolSearch) params.undergraduate_school = undergradSchoolSearch;
+      if (admittedSchoolSearch) params.admitted_school = admittedSchoolSearch;
+      if (majorSearch) params.major = majorSearch;
+      
+      const response = await axios.get(`${API_BASE_URL}/students`, { params });
+      setStudents(response.data.data);
+    } catch (err) {
+      setError('获取学员列表失败，请检查后端服务是否启�?);
+      console.error('获取学员列表失败:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * 获取筛选选项（本科院校、录取院校列表）
+   */
+  const fetchFilterOptions = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/filters`);
+      setUndergradSchools(response.data.data.undergraduate_schools);
+      setAdmittedSchools(response.data.data.admitted_schools);
+    } catch (err) {
+      console.error('获取筛选选项失败:', err);
+    }
+  };
+
+  // 组件挂载时获取数�? useEffect(() => {
+    fetchStudents();
+    fetchFilterOptions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 搜索或筛选条件变化时重新获取数据
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchStudents();
+    }, 300); // 防抖300ms
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchKeyword, undergradSchoolSearch, admittedSchoolSearch, majorSearch]);
+
+  // ==================== 事件处理 ====================
+  
+  /**
+   * 打开添加学员弹窗
+   */
+  const handleAdd = () => {
+    setEditingStudent(null);
+    setIsModalOpen(true);
+  };
+
+  /**
+   * 打开编辑学员弹窗
+   */
+  const handleEdit = (student) => {
+    setEditingStudent(student);
+    setIsModalOpen(true);
+  };
+
+  /**
+   * 关闭弹窗
+   */
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingStudent(null);
+  };
+
+  /**
+   * 保存学员（添加或编辑�?   */
+  const handleSave = async (studentData) => {
+    try {
+      if (editingStudent) {
+        // 编辑模式
+        await axios.put(`${API_BASE_URL}/students/${editingStudent.id}`, studentData);
+      } else {
+        // 添加模式
+        await axios.post(`${API_BASE_URL}/students`, studentData);
+      }
+      // 刷新列表
+      fetchStudents();
+      fetchFilterOptions();
+      handleCloseModal();
+    } catch (err) {
+      alert('保存失败: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  /**
+   * 打开删除确认弹窗
+   */
+  const handleDeleteClick = (student) => {
+    setDeletingStudent(student);
+    setIsDeleteModalOpen(true);
+  };
+
+  /**
+   * 关闭删除确认弹窗
+   */
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setDeletingStudent(null);
+  };
+
+  /**
+   * 确认删除学员
+   */
+  const handleConfirmDelete = async () => {
+    if (!deletingStudent) return;
+    
+    try {
+      await axios.delete(`${API_BASE_URL}/students/${deletingStudent.id}`);
+      // 刷新列表
+      fetchStudents();
+      fetchFilterOptions();
+      handleCloseDeleteModal();
+    } catch (err) {
+      alert('删除失败: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  /**
+   * 重置筛选条�?   */
+  const handleResetFilters = () => {
+    setSearchKeyword('');
+    setUndergradSchoolSearch('');
+    setAdmittedSchoolSearch('');
+    setMajorSearch('');
+  };
+
+  // ==================== 渲染 ====================
+  
+  return (
+    <div className="min-h-screen bg-google-gray-50">
+      {/* Apple 风格顶部导航�?*/}
+      <header className="bg-white/80 backdrop-blur-apple border-b border-google-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="bg-gradient-to-br from-google-blue-500 to-google-blue-600 text-white rounded-google-md p-2 shadow-google-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-google-gray-900">侨邦国际教育</h1>
+                <p className="text-xs text-google-gray-500">学生案例展示系统</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-google-gray-600">
+                �?<span className="font-semibold text-google-blue-500">{students.length}</span> 名学�?              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* 主内容区 */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Apple 风格搜索和筛选栏 */}
+        <div className="bg-white rounded-google-lg shadow-google-md p-6 mb-8 border border-google-gray-100">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+            {/* 搜索�?- Apple 风格 */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-google-gray-700 mb-2">搜索</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="搜索姓名、本科院校、录取院�?.."
+                  value={searchKeyword}
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border border-google-gray-300 rounded-google-md focus:ring-2 focus:ring-apple-blue-500 focus:border-google-blue-500 bg-google-gray-50 text-google-gray-900 placeholder-apple-gray-400"
+                />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-google-gray-400 absolute left-4 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* 本科院校搜索 */}
+            <div className="lg:w-64">
+              <label className="block text-sm font-medium text-google-gray-700 mb-2">本科院校搜索</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="搜索本科院校..."
+                  value={undergradSchoolSearch}
+                  onChange={(e) => setUndergradSchoolSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-google-gray-300 rounded-google-md focus:ring-2 focus:ring-apple-blue-500 focus:border-google-blue-500 bg-white text-google-gray-900 placeholder-apple-gray-400"
+                />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-google-gray-400 absolute left-3 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* 录取院校搜索 */}
+            <div className="lg:w-64">
+              <label className="block text-sm font-medium text-google-gray-700 mb-2">录取院校搜索</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="搜索录取院校..."
+                  value={admittedSchoolSearch}
+                  onChange={(e) => setAdmittedSchoolSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-google-gray-300 rounded-google-md focus:ring-2 focus:ring-apple-blue-500 focus:border-google-blue-500 bg-white text-google-gray-900 placeholder-apple-gray-400"
+                />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-google-gray-400 absolute left-3 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* 专业搜索 */}
+            <div className="lg:w-64">
+              <label className="block text-sm font-medium text-google-gray-700 mb-2">专业搜索</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="搜索本科/录取专业..."
+                  value={majorSearch}
+                  onChange={(e) => setMajorSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-google-gray-300 rounded-google-md focus:ring-2 focus:ring-apple-blue-500 focus:border-google-blue-500 bg-white text-google-gray-900 placeholder-apple-gray-400"
+                />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-google-gray-400 absolute left-3 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* 操作按钮 - Apple 风格 */}
+            <div className="flex items-end gap-3">
+              <button
+                onClick={handleResetFilters}
+                className="px-5 py-3 text-google-gray-600 bg-google-gray-100 rounded-google-md hover:bg-google-gray-200 transition-all duration-200 active:scale-95 font-medium"
+              >
+                重置
+              </button>
+              <button
+                onClick={handleAdd}
+                className="px-6 py-3 bg-gradient-to-r from-google-blue-500 to-google-blue-600 text-white rounded-google-md hover:shadow-google-md transition-all duration-200 active:scale-95 font-medium flex items-center gap-2 shadow-google-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                添加学员
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 错误提示 - Apple 风格 */}
+        {error && (
+          <div className="bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-google-md mb-6 flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            {error}
+          </div>
+        )}
+
+        {/* 学员列表 */}
+        {loading ? (
+          <div className="text-center py-16">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-google-blue-500 border-t-transparent"></div>
+            <p className="mt-4 text-google-gray-600 font-medium">加载�?..</p>
+          </div>
+        ) : students.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-google-lg shadow-google-sm border border-google-gray-100">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-google-gray-100 mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-google-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <p className="text-google-gray-500 font-medium">暂无学员数据</p>
+            <button
+              onClick={handleAdd}
+              className="mt-6 px-6 py-3 bg-gradient-to-r from-google-blue-500 to-google-blue-600 text-white rounded-google-md hover:shadow-google-md transition-all duration-200 active:scale-95 font-medium"
+            >
+              添加第一个学�?�?            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {students.map((student) => (
+              <StudentCard
+                key={student.id}
+                student={student}
+                onEdit={() => handleEdit(student)}
+                onDelete={() => handleDeleteClick(student)}
+              />
+            ))}
+          </div>
+        )}
+      </main>
+
+      {/* 添加/编辑弹窗 */}
+      <StudentModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSave}
+        student={editingStudent}
+      />
+
+      {/* 删除确认弹窗 */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        studentName={deletingStudent?.name}
+      />
+    </div>
+  );
+}
+
+export default App;

@@ -1,0 +1,17 @@
+# 敏感数据文件
+node_modules/
+.DS_Store
+.env
+dist/
+build/
+backup_*/
+uploads/
+*.backup
+*.temp
+reset-password.js
+test-password.js
+
+# 真实业务数据（敏感信息）
+backend/crm_data.json
+backend/data.json
+backend/admin.json

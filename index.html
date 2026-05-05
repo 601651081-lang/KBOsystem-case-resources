@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留学成功案例 - 学员管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-radius: 15px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .case-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .case-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+
+        .student-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .student-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .info-label {
+            min-width: 100px;
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-label::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .info-value {
+            flex: 1;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .offer-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .gpa-highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .lang-score {
+            display: inline-flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .lang-tag {
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .cases-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-item {
+                padding: 15px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 留学成功案例</h1>
+            <p>见证每一位学员的成长与蜕变，助力梦想起航</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number">500+</span>
+                <span class="stat-label">成功案例</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">98%</span>
+                <span class="stat-label">录取率</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">50+</span>
+                <span class="stat-label">合作院校</span>
+            </div>
+        </div>
+
+        <div class="cases-grid">
+            <!-- 案例 1 -->
+            <div class="case-card">
+                <div class="student-header">
+                    <div class="avatar">张</div>
+                    <div class="student-name">张同学</div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">本科院校</span>
+                        <span class="info-value">北京大学</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科专业</span>
+                        <span class="info-value">经济学</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科绩点</span>
+                        <span class="info-value gpa-highlight">3.8 / 4.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">语言成绩</span>
+                        <span class="info-value lang-score">
+                            <span class="lang-tag">托福 110</span>
+                            <span class="lang-tag">GRE 328</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取院校</span>
+                        <span class="info-value">
+                            <span class="offer-badge">哈佛大学</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取专业</span>
+                        <span class="info-value">MBA 工商管理硕士</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 案例 2 -->
+            <div class="case-card">
+                <div class="student-header">
+                    <div class="avatar">李</div>
+                    <div class="student-name">李同学</div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">本科院校</span>
+                        <span class="info-value">清华大学</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科专业</span>
+                        <span class="info-value">计算机科学与技术</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科绩点</span>
+                        <span class="info-value gpa-highlight">3.9 / 4.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">语言成绩</span>
+                        <span class="info-value lang-score">
+                            <span class="lang-tag">托福 115</span>
+                            <span class="lang-tag">GRE 335</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取院校</span>
+                        <span class="info-value">
+                            <span class="offer-badge">斯坦福大学</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取专业</span>
+                        <span class="info-value">M.S. in Computer Science</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 案例 3 -->
+            <div class="case-card">
+                <div class="student-header">
+                    <div class="avatar">王</div>
+                    <div class="student-name">王同学</div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">本科院校</span>
+                        <span class="info-value">复旦大学</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科专业</span>
+                        <span class="info-value">新闻传播学</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科绩点</span>
+                        <span class="info-value gpa-highlight">3.7 / 4.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">语言成绩</span>
+                        <span class="info-value lang-score">
+                            <span class="lang-tag">雅思 7.5</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取院校</span>
+                        <span class="info-value">
+                            <span class="offer-badge">伦敦政治经济学院</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取专业</span>
+                        <span class="info-value">Media and Communications</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 案例 4 -->
+            <div class="case-card">
+                <div class="student-header">
+                    <div class="avatar">陈</div>
+                    <div class="student-name">陈同学</div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">本科院校</span>
+                        <span class="info-value">浙江大学</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科专业</span>
+                        <span class="info-value">生物医学工程</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科绩点</span>
+                        <span class="info-value gpa-highlight">3.85 / 4.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">语言成绩</span>
+                        <span class="info-value lang-score">
+                            <span class="lang-tag">托福 108</span>
+                            <span class="lang-tag">GRE 325</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取院校</span>
+                        <span class="info-value">
+                            <span class="offer-badge">约翰霍普金斯大学</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取专业</span>
+                        <span class="info-value">Ph.D. in Biomedical Engineering</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 案例 5 -->
+            <div class="case-card">
+                <div class="student-header">
+                    <div class="avatar">刘</div>
+                    <div class="student-name">刘同学</div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">本科院校</span>
+                        <span class="info-value">上海交通大学</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科专业</span>
+                        <span class="info-value">机械工程</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科绩点</span>
+                        <span class="info-value gpa-highlight">3.6 / 4.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">语言成绩</span>
+                        <span class="info-value lang-score">
+                            <span class="lang-tag">雅思 7.0</span>
+                            <span class="lang-tag">GRE 320</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取院校</span>
+                        <span class="info-value">
+                            <span class="offer-badge">帝国理工学院</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取专业</span>
+                        <span class="info-value">MSc Advanced Mechanical Engineering</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 案例 6 -->
+            <div class="case-card">
+                <div class="student-header">
+                    <div class="avatar">赵</div>
+                    <div class="student-name">赵同学</div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">本科院校</span>
+                        <span class="info-value">中国人民大学</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科专业</span>
+                        <span class="info-value">法学</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">本科绩点</span>
+                        <span class="info-value gpa-highlight">3.75 / 4.0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">语言成绩</span>
+                        <span class="info-value lang-score">
+                            <span class="lang-tag">托福 105</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取院校</span>
+                        <span class="info-value">
+                            <span class="offer-badge">耶鲁大学</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">录取专业</span>
+                        <span class="info-value">LL.M. 法学硕士</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 留学服务中心 | 让每一份努力都有回报</p>
+        </div>
+    </div>
+</body>
+</html>

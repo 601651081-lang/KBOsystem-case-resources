@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "date": "2026-01-01",
+    "name": "示例客户",
+    "bizType": "培训",
+    "source": "小红书",
+    "advisor": "Dora",
+    "campus": "金山湖",
+    "isSigned": "否",
+    "income": 0,
+    "group_name": "高中/大学生",
+    "demand": "咨询培训课程",
+    "intentLevel": 3
+  },
+  {
+    "id": 2,
+    "date": "2026-01-02",
+    "name": "示例客户2",
+    "bizType": "留学",
+    "source": "抖音",
+    "advisor": "VIP",
+    "campus": "佳兆业",
+    "isSigned": "是",
+    "income": 50000,
+    "group_name": "成人客户",
+    "demand": "咨询留学方案",
+    "intentLevel": 5,
+    "project": "美国本科申请",
+    "contractor": "财务",
+    "salesNote": "已签约"
+  }
+]
