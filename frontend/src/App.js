@@ -6,7 +6,7 @@ import { PlusCircle, X, Search, Filter, ChevronDown, Star } from 'lucide-react';
 import logo from './assets/灯塔.png';
 import CaseSystem from './CaseSystem';
 
-const API_BASE_URL = 'http://43.139.194.125/api/auth/login';
+const API_BASE_URL = 'http://43.139.194.125/api/';
 
 const BIZ_TYPES = ['留学', '培训', '培训+留学'];
 const GROUPS = ['少儿小初', '高中/大学生', '成人客户'];
