@@ -18,7 +18,7 @@ import logo from './assets/灯塔.png';
 // 导入公司前台图片
 import officeImg from './assets/office.png';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'http://43.139.194.125/api';
 
 const REGIONS = ['不限', '中国香港', '英国', '美国', '澳大利亚', '新加坡', '中国澳門', '马来西亚', '欧洲'];
 const CATEGORIES = ['不限', '商科', '社科', '工科', '理科'];
