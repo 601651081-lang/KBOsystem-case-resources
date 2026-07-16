@@ -824,7 +824,10 @@ function CRMSystem() {
                     <th className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-20">序号</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-40">日期 / 校区</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-56">客户姓名 / 来源</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-64">业务分类 / 群体 / 培训项目</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest w-52">
+                      <div className="whitespace-nowrap">业务分类 / 群体</div>
+                      <div className="mt-1 whitespace-nowrap">培训项目</div>
+                    </th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-28">顾问</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-36">意向强度</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">具体需求备注</th>
