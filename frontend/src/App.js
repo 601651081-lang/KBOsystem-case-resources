@@ -11,9 +11,16 @@ const API_BASE_URL = 'http://43.139.194.125/api';
 const BIZ_TYPES = ['留学', '培训', '培训+留学'];
 const GROUPS = ['小学', '初中', '高中', '大学', '成人'];
 const ALL_GROUPS_OPTION = '全部群体';
+const LEGACY_GROUP_MAP = {
+  '少儿小初': '小学',
+  '高中/大学生': '高中',
+  '成人客户': '成人'
+};
 const SOURCES = ['美团', '小红书', '抖音', '广告宣传-自动上门', '渠道推荐', '老客户推荐', '活动推广', 'Wilson老板', '内部员工', '高德/百度地图', '公众号/扫一扫/视频号'];
 const ADVISORS = ['Dora', 'VIP', 'Avril'];
 const CAMPUSES = ['佳兆业', '金山湖'];
+
+const normalizeGroupName = (groupName) => LEGACY_GROUP_MAP[groupName] || groupName || GROUPS[0];
 
 const FormInput = ({ label, value, onChange, placeholder, required, type = "text", autoFocus }) => (
   <div>
@@ -259,7 +266,8 @@ function CRMSystem() {
       const matchMonth = item.date.startsWith(filterMonth);
       const matchAdvisor = filterAdvisor === '全部顾问' || item.advisor === filterAdvisor;
       const matchSource = filterSource === '全部来源' || item.source === filterSource;
-      const matchGroup = filterGroup === '全部群体' || item.group_name === filterGroup;
+      const itemGroup = normalizeGroupName(item.group_name);
+      const matchGroup = filterGroup === '全部群体' || itemGroup === filterGroup;
       const matchCampus = filterCampus === '全部校区' || item.campus === filterCampus;
       const matchSearch = (item.name || "").includes(searchTerm);
       return matchMonth && matchAdvisor && matchSource && matchGroup && matchCampus && matchSearch;
@@ -326,7 +334,7 @@ function CRMSystem() {
     dashboardData.forEach(item => {
       const campus = item.campus || CAMPUSES[0];
       const advisor = item.advisor || ADVISORS[0];
-      const group = item.group_name || GROUPS[0];
+      const group = normalizeGroupName(item.group_name);
       const source = item.source || SOURCES[0];
 
       if (!resourceGroups.includes(group)) return;
@@ -370,7 +378,7 @@ function CRMSystem() {
 
   const openEditModal = (item) => {
     setEditingId(item.id);
-    setFormData({ ...item });
+    setFormData({ ...item, group_name: normalizeGroupName(item.group_name) });
     setIsModalOpen(true);
   };
 
@@ -384,7 +392,7 @@ function CRMSystem() {
         window.location.reload();
         return;
       }
-      await axios.post(`${API_BASE_URL}/crm`, { ...formData, id: editingId || undefined }, {
+      await axios.post(`${API_BASE_URL}/crm`, { ...formData, group_name: normalizeGroupName(formData.group_name), id: editingId || undefined }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsModalOpen(false);
@@ -765,7 +773,7 @@ function CRMSystem() {
                       </td>
                       <td className="px-6 py-5">
                         <div className="text-sm font-bold text-gray-600">{item.bizType}</div>
-                        <div className="text-[10px] font-medium text-gray-400">{item.group_name}</div>
+                        <div className="text-[10px] font-medium text-gray-400">{normalizeGroupName(item.group_name)}</div>
                       </td>
                       <td className="px-6 py-5">
                         <div className="text-sm font-bold text-[#1E293B]">{item.advisor}</div>
