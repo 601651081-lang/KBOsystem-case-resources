@@ -9,7 +9,7 @@
     "campus": "金山湖",
     "isSigned": "否",
     "income": 0,
-    "group_name": "高中/大学生",
+    "group_name": "高中",
     "demand": "咨询培训课程",
     "intentLevel": 3
   },
@@ -23,7 +23,7 @@
     "campus": "佳兆业",
     "isSigned": "是",
     "income": 50000,
-    "group_name": "成人客户",
+    "group_name": "成人",
     "demand": "咨询留学方案",
     "intentLevel": 5,
     "project": "美国本科申请",

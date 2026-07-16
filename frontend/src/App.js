@@ -9,7 +9,8 @@ import CaseSystem from './CaseSystem';
 const API_BASE_URL = 'http://43.139.194.125/api';
 
 const BIZ_TYPES = ['留学', '培训', '培训+留学'];
-const GROUPS = ['少儿小初', '高中/大学生', '成人客户'];
+const GROUPS = ['小学', '初中', '高中', '大学', '成人'];
+const ALL_GROUPS_OPTION = '全部群体';
 const SOURCES = ['美团', '小红书', '抖音', '广告宣传-自动上门', '渠道推荐', '老客户推荐', '活动推广', 'Wilson老板', '内部员工', '高德/百度地图', '公众号/扫一扫/视频号'];
 const ADVISORS = ['Dora', 'VIP', 'Avril'];
 const CAMPUSES = ['佳兆业', '金山湖'];
@@ -224,13 +225,14 @@ function CRMSystem() {
   const [filterCampus, setFilterCampus] = useState('全部校区');
   const [searchTerm, setSearchTerm] = useState('');
   const [showResourceBoard, setShowResourceBoard] = useState(false);
+  const [resourceGroupFilter, setResourceGroupFilter] = useState(ALL_GROUPS_OPTION);
   const [startDate, setStartDate] = useState('2026-01-01');
   const [endDate, setEndDate] = useState('2026-12-31');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     name: '', date: new Date().toISOString().split('T')[0],
-    bizType: '培训', group_name: '高中/大学生',
+    bizType: '培训', group_name: '高中',
     source: '小红书', advisor: 'Dora', campus: '金山湖',
     demand: '', isSigned: '否', intentLevel: 0,
     income: 0, contractor: '', salesNote: '', project: ''
@@ -287,11 +289,15 @@ function CRMSystem() {
     return salesData.reduce((sum, curr) => sum + (parseFloat(curr.income) || 0), 0);
   }, [salesData]);
 
+  const resourceGroups = useMemo(() => {
+    return resourceGroupFilter === ALL_GROUPS_OPTION ? GROUPS : [resourceGroupFilter];
+  }, [resourceGroupFilter]);
+
   const resourceStats = useMemo(() => {
     const stats = {
       campuses: CAMPUSES,
       advisors: ADVISORS,
-      groups: GROUPS,
+      groups: resourceGroups,
       sources: SOURCES,
       campusAdvisorGroupData: {},
       groupTotal: {},
@@ -305,22 +311,26 @@ function CRMSystem() {
       stats.campusAdvisorGroupData[campus] = {};
       ADVISORS.forEach(advisor => {
         stats.campusAdvisorGroupData[campus][advisor] = {};
-        GROUPS.forEach(group => {
+        resourceGroups.forEach(group => {
           stats.campusAdvisorGroupData[campus][advisor][group] = 0;
         });
       });
     });
 
-    GROUPS.forEach(group => { stats.groupTotal[group] = { total: 0, campuses: {} }; });
+    resourceGroups.forEach(group => { stats.groupTotal[group] = { total: 0, campuses: {} }; });
     ADVISORS.forEach(advisor => { stats.advisorTotal[advisor] = 0; });
     SOURCES.forEach(source => { stats.sourceCampusData[source] = {}; CAMPUSES.forEach(campus => { stats.sourceCampusData[source][campus] = 0; }); });
     CAMPUSES.forEach(campus => { stats.sourceTotal[campus] = 0; stats.campusTotal[campus] = 0; });
 
+    let grandTotal = 0;
     dashboardData.forEach(item => {
       const campus = item.campus || CAMPUSES[0];
       const advisor = item.advisor || ADVISORS[0];
       const group = item.group_name || GROUPS[0];
       const source = item.source || SOURCES[0];
+
+      if (!resourceGroups.includes(group)) return;
+      grandTotal++;
 
       if (stats.campusAdvisorGroupData[campus]?.[advisor]) {
         if (stats.campusAdvisorGroupData[campus][advisor][group] !== undefined) {
@@ -343,15 +353,14 @@ function CRMSystem() {
       if (stats.sourceTotal[campus] !== undefined) stats.sourceTotal[campus]++;
     });
 
-    const grandTotal = dashboardData.length;
     return { ...stats, grandTotal };
-  }, [dashboardData]);
+  }, [dashboardData, resourceGroups]);
 
   const openAddModal = (type) => {
     setEditingId(null);
     setFormData({
       name: '', date: new Date().toISOString().split('T')[0],
-      bizType: '培训', group_name: '高中/大学生',
+      bizType: '培训', group_name: '高中',
       source: type === 'sales' ? '' : '小红书', advisor: type === 'sales' ? '' : 'Dora', campus: '金山湖',
       demand: '', isSigned: type === 'sales' ? '是' : '否', intentLevel: 0,
       income: 0, contractor: '', salesNote: '', project: ''
@@ -520,6 +529,17 @@ function CRMSystem() {
                       className="bg-gray-50 border-none rounded-xl px-4 py-2.5 font-bold outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
+                  <div>
+                    <label className="block text-xs font-black text-gray-400 uppercase mb-2">咨询群体</label>
+                    <select
+                      value={resourceGroupFilter}
+                      onChange={e => setResourceGroupFilter(e.target.value)}
+                      className="bg-gray-50 border-none rounded-xl px-4 py-2.5 font-bold outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                      <option value={ALL_GROUPS_OPTION}>{ALL_GROUPS_OPTION}</option>
+                      {GROUPS.map(group => <option key={group} value={group}>{group}</option>)}
+                    </select>
+                  </div>
                 </div>
 
                 <div className="space-y-6">
@@ -539,8 +559,8 @@ function CRMSystem() {
                           </tr>
                         </thead>
                         <tbody>
-                          {GROUPS.map(group => (
-                            <>
+                          {resourceStats.groups.map(group => (
+                            <React.Fragment key={group}>
                               {CAMPUSES.map((campus, idx) => {
                                 const rowTotal = ADVISORS.reduce((sum, advisor) => 
                                   sum + (resourceStats.campusAdvisorGroupData[campus]?.[advisor]?.[group] || 0), 0);
@@ -557,7 +577,7 @@ function CRMSystem() {
                                   </tr>
                                 );
                               })}
-                            </>
+                            </React.Fragment>
                           ))}
                           <tr className="bg-yellow-300">
                             <td className="border border-gray-400 px-3 py-2 font-black">📈 资源小计</td>

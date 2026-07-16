@@ -330,7 +330,7 @@ app.post('/api/crm', authenticateToken, async (req, res) => {
                 campus: newItem.campus || "金山湖",
                 isSigned: newItem.isSigned || "否",
                 income: newItem.income || 0,
-                group_name: newItem.group_name || "高中/大学生",
+                group_name: newItem.group_name || "高中",
                 demand: newItem.demand || "",
                 intentLevel: newItem.intentLevel || 0,
                 project: newItem.project || "",
