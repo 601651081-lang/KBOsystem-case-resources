@@ -10,6 +10,7 @@
     "isSigned": "否",
     "income": 0,
     "group_name": "高中",
+    "training_project": "雅思",
     "demand": "咨询培训课程",
     "intentLevel": 3
   },
@@ -24,6 +25,7 @@
     "isSigned": "是",
     "income": 50000,
     "group_name": "成人",
+    "training_project": "",
     "demand": "咨询留学方案",
     "intentLevel": 5,
     "project": "美国本科申请",

@@ -11,6 +11,8 @@ const API_BASE_URL = 'http://43.139.194.125/api';
 const BIZ_TYPES = ['留学', '培训', '培训+留学'];
 const GROUPS = ['小学', '初中', '高中', '大学', '成人'];
 const ALL_GROUPS_OPTION = '全部群体';
+const TRAINING_PROJECTS = ['低龄', '雅思', '其他'];
+const ALL_TRAINING_PROJECTS_OPTION = '全部培训项目';
 const LEGACY_GROUP_MAP = {
   '少儿小初': '小学',
   '高中/大学生': '高中',
@@ -229,6 +231,7 @@ function CRMSystem() {
   const [filterAdvisor, setFilterAdvisor] = useState('全部顾问');
   const [filterSource, setFilterSource] = useState('全部来源');
   const [filterGroup, setFilterGroup] = useState('全部群体');
+  const [filterTrainingProject, setFilterTrainingProject] = useState(ALL_TRAINING_PROJECTS_OPTION);
   const [filterCampus, setFilterCampus] = useState('全部校区');
   const [searchTerm, setSearchTerm] = useState('');
   const [showResourceBoard, setShowResourceBoard] = useState(false);
@@ -242,7 +245,7 @@ function CRMSystem() {
     bizType: '培训', group_name: '高中',
     source: '小红书', advisor: 'Dora', campus: '金山湖',
     demand: '', isSigned: '否', intentLevel: 0,
-    income: 0, contractor: '', salesNote: '', project: ''
+    income: 0, contractor: '', salesNote: '', project: '', training_project: ''
   });
   const [showChangePwdModal, setShowChangePwdModal] = useState(false);
   const [pwdData, setPwdData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
@@ -268,15 +271,16 @@ function CRMSystem() {
       const matchSource = filterSource === '全部来源' || item.source === filterSource;
       const itemGroup = normalizeGroupName(item.group_name);
       const matchGroup = filterGroup === '全部群体' || itemGroup === filterGroup;
+      const matchTrainingProject = filterTrainingProject === ALL_TRAINING_PROJECTS_OPTION || item.training_project === filterTrainingProject;
       const matchCampus = filterCampus === '全部校区' || item.campus === filterCampus;
       const matchSearch = (item.name || "").includes(searchTerm);
-      return matchMonth && matchAdvisor && matchSource && matchGroup && matchCampus && matchSearch;
+      return matchMonth && matchAdvisor && matchSource && matchGroup && matchTrainingProject && matchCampus && matchSearch;
     }).sort((a, b) => {
       if (a.date < b.date) return -1;
       if (a.date > b.date) return 1;
       return 0;
     });
-  }, [db, filterMonth, filterAdvisor, filterSource, filterGroup, filterCampus, searchTerm]);
+  }, [db, filterMonth, filterAdvisor, filterSource, filterGroup, filterTrainingProject, filterCampus, searchTerm]);
 
   const dashboardData = useMemo(() => {
     return db.filter(item => item.date >= startDate && item.date <= endDate && item.isSigned !== '是');
@@ -311,8 +315,10 @@ function CRMSystem() {
       groupTotal: {},
       advisorTotal: {},
       sourceCampusData: {},
+      trainingProjectCampusData: {},
       sourceTotal: {},
-      campusTotal: {}
+      campusTotal: {},
+      trainingProjectTotal: 0
     };
 
     CAMPUSES.forEach(campus => {
@@ -328,6 +334,7 @@ function CRMSystem() {
     resourceGroups.forEach(group => { stats.groupTotal[group] = { total: 0, campuses: {} }; });
     ADVISORS.forEach(advisor => { stats.advisorTotal[advisor] = 0; });
     SOURCES.forEach(source => { stats.sourceCampusData[source] = {}; CAMPUSES.forEach(campus => { stats.sourceCampusData[source][campus] = 0; }); });
+    TRAINING_PROJECTS.forEach(project => { stats.trainingProjectCampusData[project] = {}; CAMPUSES.forEach(campus => { stats.trainingProjectCampusData[project][campus] = 0; }); });
     CAMPUSES.forEach(campus => { stats.sourceTotal[campus] = 0; stats.campusTotal[campus] = 0; });
 
     let grandTotal = 0;
@@ -336,6 +343,7 @@ function CRMSystem() {
       const advisor = item.advisor || ADVISORS[0];
       const group = normalizeGroupName(item.group_name);
       const source = item.source || SOURCES[0];
+      const trainingProject = item.training_project || '';
 
       if (!resourceGroups.includes(group)) return;
       grandTotal++;
@@ -359,6 +367,11 @@ function CRMSystem() {
         stats.sourceCampusData[source][campus]++;
       }
       if (stats.sourceTotal[campus] !== undefined) stats.sourceTotal[campus]++;
+
+      if (stats.trainingProjectCampusData[trainingProject]?.[campus] !== undefined) {
+        stats.trainingProjectCampusData[trainingProject][campus]++;
+        stats.trainingProjectTotal++;
+      }
     });
 
     return { ...stats, grandTotal };
@@ -371,7 +384,7 @@ function CRMSystem() {
       bizType: '培训', group_name: '高中',
       source: type === 'sales' ? '' : '小红书', advisor: type === 'sales' ? '' : 'Dora', campus: '金山湖',
       demand: '', isSigned: type === 'sales' ? '是' : '否', intentLevel: 0,
-      income: 0, contractor: '', salesNote: '', project: ''
+      income: 0, contractor: '', salesNote: '', project: '', training_project: ''
     });
     setIsModalOpen(true);
   };
@@ -456,6 +469,7 @@ function CRMSystem() {
     setFilterAdvisor('全部顾问');
     setFilterSource('全部来源');
     setFilterGroup('全部群体');
+    setFilterTrainingProject(ALL_TRAINING_PROJECTS_OPTION);
     setFilterCampus('全部校区');
     setSearchTerm('');
   };
@@ -604,6 +618,56 @@ function CRMSystem() {
 
                   <div className="bg-white border-2 border-gray-800 rounded-lg overflow-hidden">
                     <div className="bg-gray-800 text-white text-center py-2">
+                      <h3 className="font-black text-lg">培训项目统计</h3>
+                      <p className="text-xs mt-1">按校区查看低龄 / 雅思 / 其他</p>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm border-collapse">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="border border-gray-400 px-3 py-2 text-center font-bold">校区</th>
+                            {TRAINING_PROJECTS.map(project => (
+                              <th key={project} className="border border-gray-400 px-3 py-2 text-center font-bold">{project}</th>
+                            ))}
+                            <th className="border border-gray-400 px-3 py-2 text-center font-bold bg-yellow-100">总计</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {CAMPUSES.map(campus => {
+                            const campusTotal = TRAINING_PROJECTS.reduce((sum, project) =>
+                              sum + (resourceStats.trainingProjectCampusData[project]?.[campus] || 0), 0);
+                            return (
+                              <tr key={campus}>
+                                <td className="border border-gray-400 px-3 py-2 font-bold">{campus}</td>
+                                {TRAINING_PROJECTS.map(project => (
+                                  <td key={project} className="border border-gray-400 px-3 py-2 text-center font-bold">
+                                    {resourceStats.trainingProjectCampusData[project]?.[campus] || 0}
+                                  </td>
+                                ))}
+                                <td className="border border-gray-400 px-3 py-2 text-center font-bold">{campusTotal}</td>
+                              </tr>
+                            );
+                          })}
+                          <tr className="bg-yellow-300">
+                            <td className="border border-gray-400 px-3 py-2 font-black">项目小计</td>
+                            {TRAINING_PROJECTS.map(project => {
+                              const projectTotal = CAMPUSES.reduce((sum, campus) =>
+                                sum + (resourceStats.trainingProjectCampusData[project]?.[campus] || 0), 0);
+                              return (
+                                <td key={project} className="border border-gray-400 px-3 py-2 text-center font-black">
+                                  {projectTotal}
+                                </td>
+                              );
+                            })}
+                            <td className="border border-gray-400 px-3 py-2 text-center font-black">{resourceStats.trainingProjectTotal}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border-2 border-gray-800 rounded-lg overflow-hidden">
+                    <div className="bg-gray-800 text-white text-center py-2">
                       <h3 className="font-black text-lg">🎯 招生来源统计</h3>
                     </div>
                     <div className="overflow-x-auto">
@@ -693,6 +757,14 @@ function CRMSystem() {
                     {GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
                   <select
+                    value={filterTrainingProject}
+                    onChange={e => setFilterTrainingProject(e.target.value)}
+                    className="bg-gray-50 border-none rounded-xl px-4 py-2.5 font-bold outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value={ALL_TRAINING_PROJECTS_OPTION}>{ALL_TRAINING_PROJECTS_OPTION}</option>
+                    {TRAINING_PROJECTS.map(project => <option key={project} value={project}>{project}</option>)}
+                  </select>
+                  <select
                     value={filterCampus}
                     onChange={e => setFilterCampus(e.target.value)}
                     className="bg-gray-50 border-none rounded-xl px-4 py-2.5 font-bold outline-none focus:ring-2 focus:ring-blue-500"
@@ -752,7 +824,7 @@ function CRMSystem() {
                     <th className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest w-12">序号</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">日期 / 校区</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">客户姓名 / 来源</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">业务分类 / 群体</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">业务分类 / 群体 / 培训项目</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">顾问</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">意向强度</th>
                     <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">具体需求备注</th>
@@ -774,6 +846,7 @@ function CRMSystem() {
                       <td className="px-6 py-5">
                         <div className="text-sm font-bold text-gray-600">{item.bizType}</div>
                         <div className="text-[10px] font-medium text-gray-400">{normalizeGroupName(item.group_name)}</div>
+                        <div className="text-[10px] font-medium text-purple-500">{item.training_project || '-'}</div>
                       </td>
                       <td className="px-6 py-5">
                         <div className="text-sm font-bold text-[#1E293B]">{item.advisor}</div>
@@ -894,6 +967,17 @@ function CRMSystem() {
                       <div className="grid grid-cols-2 gap-4">
                         <FormSelect label="业务分类" options={BIZ_TYPES} value={formData.bizType} onChange={v => setFormData({ ...formData, bizType: v })} />
                         <FormSelect label="咨询群体" options={GROUPS} value={formData.group_name} onChange={v => setFormData({ ...formData, group_name: v })} />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase mb-2 ml-1 tracking-widest">培训项目</label>
+                        <select
+                          className="w-full bg-gray-50 border-none rounded-2xl px-5 py-3.5 font-bold outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                          value={formData.training_project || ''}
+                          onChange={e => setFormData({ ...formData, training_project: e.target.value })}
+                        >
+                          <option value="">不选择</option>
+                          {TRAINING_PROJECTS.map(project => <option key={project} value={project}>{project}</option>)}
+                        </select>
                       </div>
                       <FormSelect label="来源渠道" options={SOURCES} value={formData.source} onChange={v => setFormData({ ...formData, source: v })} />
                       <div className="grid grid-cols-2 gap-4">
