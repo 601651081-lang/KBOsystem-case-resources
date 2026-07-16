@@ -818,25 +818,25 @@ function CRMSystem() {
 
           <div className="overflow-x-auto">
             {activeTab === 'leads' ? (
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[1280px] text-left border-collapse">
                 <thead>
                   <tr className="bg-gray-50/50 border-b border-gray-50">
-                    <th className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest w-12">序号</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">日期 / 校区</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">客户姓名 / 来源</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">业务分类 / 群体 / 培训项目</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">顾问</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">意向强度</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest">具体需求备注</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">管理</th>
+                    <th className="px-4 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-20">序号</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-40">日期 / 校区</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-56">客户姓名 / 来源</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-64">业务分类 / 群体 / 培训项目</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-28">顾问</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap w-36">意向强度</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">具体需求备注</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap text-right w-28">管理</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {leadsData.map((item, index) => (
                     <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group">
-                      <td className="px-4 py-5 text-sm font-bold text-gray-400">{index + 1}</td>
-                      <td className="px-6 py-5">
-                        <div className="text-sm font-bold text-gray-700">{item.date}</div>
+                      <td className="px-4 py-5 text-sm font-bold text-gray-400 whitespace-nowrap">{index + 1}</td>
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <div className="text-sm font-bold text-gray-700 whitespace-nowrap">{item.date}</div>
                         <div className="text-[10px] font-black text-blue-500">{item.campus}</div>
                       </td>
                       <td className="px-6 py-5">
@@ -882,25 +882,25 @@ function CRMSystem() {
                 </tbody>
               </table>
             ) : (
-              <table className="w-full text-left border-collapse">
+              <table className="w-full min-w-[1180px] text-left border-collapse">
                 <thead>
                   <tr className="bg-blue-50/50 border-b border-blue-100">
-                    <th className="px-4 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest w-12">序号</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest">日期</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest">客户姓名 / 来源</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest">顾问 / 对接人</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest">签约项目</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest">签约金额</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest">备注</th>
-                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest text-right">管理</th>
+                    <th className="px-4 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest whitespace-nowrap w-20">序号</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest whitespace-nowrap w-36">日期</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest whitespace-nowrap w-56">客户姓名 / 来源</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest whitespace-nowrap w-48">顾问 / 对接人</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest whitespace-nowrap w-48">签约项目</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest whitespace-nowrap w-36">签约金额</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest whitespace-nowrap">备注</th>
+                    <th className="px-6 py-5 text-[11px] font-black text-blue-600 uppercase tracking-widest whitespace-nowrap text-right w-28">管理</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {salesData.map((item, index) => (
                     <tr key={item.id} className="hover:bg-gray-50/50 transition-colors group">
-                      <td className="px-4 py-5 text-sm font-bold text-gray-400">{index + 1}</td>
-                      <td className="px-6 py-5">
-                        <div className="text-sm font-bold text-gray-700">{item.date}</div>
+                      <td className="px-4 py-5 text-sm font-bold text-gray-400 whitespace-nowrap">{index + 1}</td>
+                      <td className="px-6 py-5 whitespace-nowrap">
+                        <div className="text-sm font-bold text-gray-700 whitespace-nowrap">{item.date}</div>
                       </td>
                       <td className="px-6 py-5">
                         <div className="text-sm font-black text-[#1E293B]">{item.name}</div>
